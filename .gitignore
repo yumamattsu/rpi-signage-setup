@@ -1,0 +1,15 @@
+# 認証キーは絶対にpushしない
+credentials/
+*.json.bak
+service_account.json
+
+# ログファイル
+logs/
+*.log
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
