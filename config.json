@@ -1,0 +1,23 @@
+{
+  "mansion_name": "クローバーコミュニティ",
+  "drive_folder_id": "GOOGLE_DRIVE_FOLDER_ID",
+  "weather": {
+    "lat": 35.6895,
+    "lon": 139.6917,
+    "visible": true
+  },
+  "clock": {
+    "visible": true
+  },
+  "custom_widget": {
+    "title": "おしらせ",
+    "content": "本日は清掃日です。ご協力をお願いいたします。",
+    "image_url": "",
+    "visible": true
+  },
+  "contact": {
+    "title": "管理会社 緊急連絡先",
+    "number": "03-1234-5678",
+    "visible": false
+  }
+}

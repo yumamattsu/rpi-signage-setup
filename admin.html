@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signage Settings - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --text: #1e293b;
+            --sub: #64748b;
+            --border: #e2e8f0;
+        }
+        body { font-family: 'Inter','Noto Sans JP',sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
+        .container { max-width: 800px; width: 100%; }
+        .header { margin-bottom: 32px; text-align: center; }
+        .header h1 { font-size: 28px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--sub); margin-top: 8px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 4px 15px -3px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        .section-title { font-size: 18px; font-weight: 600; margin: 0 0 20px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 15px; box-sizing: border-box; transition: border-color 0.2s; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .switch-group { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; }
+        .switch { position: relative; display: inline-block; width: 48px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .btn { background: var(--primary); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; }
+        .btn:hover { background: var(--primary-dark); }
+        #status-msg { text-align: center; margin-top: 16px; font-size: 14px; font-weight: 500; min-height: 24px; }
+        .player-link { display: block; text-align: center; margin-top: 12px; color: var(--sub); font-size: 14px; }
+        .player-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>サイネージ設定パネル</h1>
+        <p>設定を変更して「保存」を押すとサイネージに即反映されます</p>
+    </div>
+    <form id="config-form">
+        <div class="card">
+            <h3 class="section-title">🏢 基本情報</h3>
+            <div class="form-group">
+                <label>マンション名 / 建物名</label>
+                <input type="text" id="mansion_name" placeholder="例: クローバーマンション">
+            </div>
+            <div class="form-group">
+                <label>Google Drive フォルダID</label>
+                <input type="text" id="drive_folder_id" placeholder="Google DriveフォルダのID">
+            </div>
+        </div>
+        <div class="card">
+            <h3 class="section-title">📊 表示ウィジェット</h3>
+            <div class="switch-group"><span>時刻 / 日付</span><label class="switch"><input type="checkbox" id="clock_visible"><span class="slider"></span></label></div>
+            <div class="switch-group"><span>天気情報</span><label class="switch"><input type="checkbox" id="weather_visible"><span class="slider"></span></label></div>
+            <div class="switch-group"><span>自由入力ウィジェット</span><label class="switch"><input type="checkbox" id="custom_visible"><span class="slider"></span></label></div>
+            <div class="switch-group"><span>緊急連絡先</span><label class="switch"><input type="checkbox" id="contact_visible"><span class="slider"></span></label></div>
+        </div>
+        <div class="card">
+            <h3 class="section-title">📍 天気の場所（緯度・経度）</h3>
+            <p style="font-size:13px;color:var(--sub);margin:0 0 16px;">東京: 35.68 / 139.69　大阪: 34.69 / 135.50</p>
+            <div class="grid-2">
+                <div class="form-group"><label>緯度 (Latitude)</label><input type="number" id="weather_lat" step="0.0001"></div>
+                <div class="form-group"><label>経度 (Longitude)</label><input type="number" id="weather_lon" step="0.0001"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h3 class="section-title">📝 自由入力ウィジェット</h3>
+            <div class="form-group"><label>タイトル</label><input type="text" id="custom_title"></div>
+            <div class="form-group"><label>内容</label><textarea id="custom_content" rows="4"></textarea></div>
+            <div class="form-group"><label>画像URL（任意）</label><input type="text" id="custom_image_url" placeholder="assets/photo.png など"></div>
+        </div>
+        <div class="card">
+            <h3 class="section-title">📞 緊急連絡先</h3>
+            <div class="form-group"><label>タイトル</label><input type="text" id="contact_title"></div>
+            <div class="form-group"><label>電話番号</label><input type="text" id="contact_number"></div>
+        </div>
+        <button type="submit" class="btn">設定を保存して反映</button>
+        <div id="status-msg"></div>
+        <div class="player-link">プレイヤーを確認: <a href="player.html" target="_blank">player.html を開く →</a></div>
+    </form>
+</div>
+<script>
+    async function load() {
+        try {
+            const r = await fetch('config.json');
+            const c = await r.json();
+            document.getElementById('mansion_name').value = c.mansion_name || '';
+            document.getElementById('drive_folder_id').value = c.drive_folder_id || '';
+            document.getElementById('clock_visible').checked = c.clock?.visible ?? true;
+            document.getElementById('weather_visible').checked = c.weather?.visible ?? true;
+            document.getElementById('custom_visible').checked = c.custom_widget?.visible ?? false;
+            document.getElementById('contact_visible').checked = c.contact?.visible ?? true;
+            document.getElementById('weather_lat').value = c.weather?.lat ?? 35.6895;
+            document.getElementById('weather_lon').value = c.weather?.lon ?? 139.6917;
+            document.getElementById('custom_title').value = c.custom_widget?.title || '';
+            document.getElementById('custom_content').value = c.custom_widget?.content || '';
+            document.getElementById('custom_image_url').value = c.custom_widget?.image_url || '';
+            document.getElementById('contact_title').value = c.contact?.title || '';
+            document.getElementById('contact_number').value = c.contact?.number || '';
+        } catch (e) { console.error("load error", e); }
+    }
+
+    document.getElementById('config-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('status-msg');
+        msg.textContent = '保存中...'; msg.style.color = 'var(--sub)';
+        const payload = {
+            mansion_name: document.getElementById('mansion_name').value,
+            drive_folder_id: document.getElementById('drive_folder_id').value,
+            weather: { lat: parseFloat(document.getElementById('weather_lat').value), lon: parseFloat(document.getElementById('weather_lon').value), visible: document.getElementById('weather_visible').checked },
+            clock: { visible: document.getElementById('clock_visible').checked },
+            custom_widget: { title: document.getElementById('custom_title').value, content: document.getElementById('custom_content').value, image_url: document.getElementById('custom_image_url').value, visible: document.getElementById('custom_visible').checked },
+            contact: { title: document.getElementById('contact_title').value, number: document.getElementById('contact_number').value, visible: document.getElementById('contact_visible').checked }
+        };
+        try {
+            const r = await fetch('/api/save-config', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            if (r.ok) { msg.textContent = '✅ 保存されました！'; msg.style.color = '#10b981'; }
+            else throw new Error();
+        } catch { msg.textContent = '❌ 保存に失敗しました'; msg.style.color = '#ef4444'; }
+    });
+
+    load();
+</script>
+</body>
+</html>

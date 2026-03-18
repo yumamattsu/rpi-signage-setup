@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residential Signage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Sora:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
+            --accent-color: #f39c12;
+            --text-main: #1b5e20;
+            --text-sub: #555;
+            --shadow-header: 0 4px 10px rgba(0, 0, 0, 0.2);
+            --surface-1: #f4f6f2;
+            --surface-2: #ffffff;
+            --line-soft: rgba(0, 0, 0, 0.06);
+        }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Noto Sans JP', sans-serif; overflow: hidden; }
+        body {
+            min-height: 100vh;
+            display: grid;
+            grid-template-areas: "header header" "content sidebar";
+            grid-template-columns: 1fr 360px;
+            grid-template-rows: 72px 1fr;
+            background: linear-gradient(180deg, #f7f9f6 0%, #edf1eb 100%);
+        }
+        header {
+            grid-area: header;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            box-shadow: var(--shadow-header);
+            z-index: 20;
+        }
+        .logo { font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 15px; }
+        .header-title { letter-spacing: 0.1em; }
+        .header-subtitle { font-size: 12px; font-weight: 500; letter-spacing: 0.25em; opacity: 0.85; margin-left: 14px; text-transform: uppercase; }
+        #content-area { grid-area: content; position: relative; background-color: #000; overflow: hidden; min-height: 0; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: none; }
+        .slide.active { display: block; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+        aside {
+            grid-area: sidebar;
+            background: var(--surface-1);
+            padding: 24px 22px 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: -8px 0 20px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+            min-height: 0;
+        }
+        .widget {
+            background: var(--surface-2);
+            border-radius: 14px;
+            padding: 20px 20px 18px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--line-soft);
+            display: none;
+        }
+        .widget-title { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #8a948f; margin-bottom: 12px; font-weight: 600; }
+        .widget-title::after { content: ""; display: block; height: 1px; background: rgba(0,0,0,0.05); margin-top: 10px; }
+        .widget-time { text-align: center; background: linear-gradient(160deg, #f1f8e9 0%, #ffffff 100%); }
+        .time-display { font-size: 66px; font-weight: 600; color: var(--text-main); line-height: 1; margin-bottom: 8px; font-family: 'Sora', sans-serif; font-variant-numeric: tabular-nums; }
+        .date-display { font-size: 22px; color: var(--text-sub); font-weight: 400; letter-spacing: 0.08em; }
+        .widget-weather { text-align: center; }
+        .weather-container { display: flex; align-items: center; justify-content: center; gap: 18px; }
+        .weather-icon { font-size: 72px; }
+        .weather-temp { font-size: 48px; font-weight: bold; color: var(--text-main); line-height: 1; }
+        .weather-desc { font-size: 18px; color: var(--text-sub); }
+        .widget-custom { background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); }
+        .custom-image { width: 100%; border-radius: 8px; margin-bottom: 10px; display: none; }
+        .custom-content { font-size: 16px; color: var(--text-sub); line-height: 1.6; }
+        .widget-contact { background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%); text-align: center; margin-top: auto; border-left: 5px solid var(--accent-color); }
+        .contact-number { font-size: 26px; font-weight: 700; color: var(--text-main); display: block; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="header-title" id="display-mansion-name">Loading...</span>
+            <span class="header-subtitle">RESIDENTIAL SIGNAGE</span>
+        </div>
+    </header>
+    <div id="content-area"></div>
+    <aside>
+        <div class="widget widget-time" id="widget-clock">
+            <div class="widget-title">現在時刻</div>
+            <div class="time-display" id="clock">--:--</div>
+            <div class="date-display" id="date">--月--日 (--)</div>
+        </div>
+        <div class="widget widget-weather" id="widget-weather">
+            <div class="widget-title">天気</div>
+            <div class="weather-container">
+                <span class="weather-icon">--</span>
+                <div class="weather-info">
+                    <div class="weather-temp">--°C</div>
+                    <div class="weather-desc">Loading...</div>
+                </div>
+            </div>
+        </div>
+        <div class="widget widget-custom" id="widget-custom">
+            <div class="widget-title" id="custom-title">お知らせ</div>
+            <img src="" class="custom-image" id="custom-img">
+            <div class="custom-content" id="custom-text"></div>
+        </div>
+        <div class="widget widget-contact" id="widget-contact">
+            <div class="widget-title">緊急連絡</div>
+            <span class="contact-title" id="contact-title">--</span>
+            <span class="contact-number" id="contact-number">--</span>
+        </div>
+    </aside>
+    <script src="playlist.js"></script>
+    <script>
+        let config = {};
+
+        async function loadConfig() {
+            try {
+                const r = await fetch('config.json');
+                config = await r.json();
+                applyConfig();
+            } catch (e) {
+                console.error("Config load failed", e);
+                applyConfig();
+            }
+        }
+
+        function applyConfig() {
+            document.getElementById('display-mansion-name').textContent = config.mansion_name || "RESIDENTIAL";
+            if (config.clock?.visible) document.getElementById('widget-clock').style.display = 'block';
+            if (config.weather?.visible) document.getElementById('widget-weather').style.display = 'block';
+            if (config.custom_widget?.visible) {
+                document.getElementById('widget-custom').style.display = 'block';
+                document.getElementById('custom-title').textContent = config.custom_widget.title || 'お知らせ';
+                document.getElementById('custom-text').textContent = config.custom_widget.content || '';
+                if (config.custom_widget.image_url) {
+                    const img = document.getElementById('custom-img');
+                    img.src = config.custom_widget.image_url;
+                    img.style.display = 'block';
+                }
+            }
+            if (config.contact?.visible) {
+                document.getElementById('widget-contact').style.display = 'block';
+                document.getElementById('contact-title').textContent = config.contact.title || '';
+                document.getElementById('contact-number').textContent = config.contact.number || '';
+            }
+            fetchWeather();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const days = ['日','月','火','水','木','金','土'];
+            document.getElementById('clock').textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            document.getElementById('date').textContent = `${now.getMonth()+1}月${now.getDate()}日 (${days[now.getDay()]})`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function fetchWeather() {
+            if (!config.weather?.visible) return;
+            const lat = config.weather?.lat || 35.6895;
+            const lon = config.weather?.lon || 139.6917;
+            try {
+                const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Asia%2FTokyo`);
+                const data = await r.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const code = data.current_weather.weathercode;
+                let icon = '☁', desc = '曇り';
+                if (code <= 1) { icon = '☀'; desc = '晴れ'; }
+                else if (code <= 3) { icon = '⛅'; desc = '曇り'; }
+                else if (code <= 48) { icon = '🌫'; desc = '霧'; }
+                else if (code <= 67) { icon = '☔'; desc = '雨'; }
+                else if (code <= 77) { icon = '☃'; desc = '雪'; }
+                else if (code <= 82) { icon = '☔'; desc = '大雨'; }
+                else { icon = '☂'; desc = '雨'; }
+                document.querySelector('.weather-temp').textContent = `${temp}°C`;
+                document.querySelector('.weather-icon').textContent = icon;
+                document.querySelector('.weather-desc').textContent = desc;
+            } catch (e) { console.error("Weather fetch failed", e); }
+        }
+        setInterval(fetchWeather, 1800000);
+
+        const ASSETS_DIR = "assets/";
+        const container = document.getElementById('content-area');
+        let currentIndex = 0, timer = null;
+
+        function initPlayer() {
+            if (typeof playlist === 'undefined' || !playlist || playlist.length === 0) {
+                container.innerHTML = '<h1 style="color:white;text-align:center;margin-top:40%;">No Content</h1>';
+                return;
+            }
+            playNext();
+        }
+        function playNext() {
+            container.innerHTML = '';
+            clearTimeout(timer);
+            if (currentIndex >= playlist.length) currentIndex = 0;
+            const filename = playlist[currentIndex];
+            const ext = filename.split('.').pop().toLowerCase();
+            let el;
+            if (['mp4','webm'].includes(ext)) {
+                el = document.createElement('video');
+                el.src = ASSETS_DIR + filename;
+                el.muted = true; el.autoplay = true; el.className = 'slide active';
+                el.onended = () => { currentIndex++; playNext(); };
+                el.onerror = () => { currentIndex++; playNext(); };
+            } else if (ext === 'pdf') {
+                el = document.createElement('iframe');
+                el.src = ASSETS_DIR + filename + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
+                el.className = 'slide active'; el.style.border = 'none';
+                timer = setTimeout(() => { currentIndex++; playNext(); }, 15000);
+            } else {
+                el = document.createElement('img');
+                el.src = ASSETS_DIR + filename; el.className = 'slide active';
+                el.onload = () => { timer = setTimeout(() => { currentIndex++; playNext(); }, 10000); };
+                el.onerror = () => { currentIndex++; playNext(); };
+            }
+            container.appendChild(el);
+        }
+
+        loadConfig();
+        initPlayer();
+    </script>
+</body>
+</html>
