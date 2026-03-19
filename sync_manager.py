@@ -4,6 +4,8 @@ import time
 
 # config.json からフォルダIDを読み込み、assetsディレクトリの状態を playlist.js に反映する同期マネージャー
 
+CREDENTIALS_FILE = os.path.join(os.path.dirname(__file__), 'credentials/service_account.json')
+
 def load_config():
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     if not os.path.exists(config_path):
