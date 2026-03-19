@@ -18,7 +18,7 @@
         body { font-family: 'Inter','Noto Sans JP',sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
         .container { max-width: 800px; width: 100%; }
         .header { margin-bottom: 32px; text-align: center; }
-        .header h1 { font-size: 28px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header h1 { font-size: 28px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #10b981, #3b82f6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .header p { color: var(--sub); margin-top: 8px; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 4px 15px -3px rgba(0,0,0,0.05); margin-bottom: 24px; }
         .section-title { font-size: 18px; font-weight: 600; margin: 0 0 20px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
@@ -85,6 +85,13 @@
             <div class="form-group"><label>タイトル</label><input type="text" id="contact_title"></div>
             <div class="form-group"><label>電話番号</label><input type="text" id="contact_number"></div>
         </div>
+        <div class="card">
+            <h3 class="section-title">⏱ ファイル別表示時間設定 (秒)</h3>
+            <p style="font-size:13px;color:var(--sub);margin:0 0-16px;">assetsフォルダ内のファイル一覧です。個別に時間を指定できます（未指定は10秒）。</p>
+            <div id="assets-list" style="margin-top:24px; display: flex; flex-direction: column; gap: 12px;">
+                <!-- JavaScript で生成 -->
+            </div>
+        </div>
         <button type="submit" class="btn">設定を保存して反映</button>
         <div id="status-msg"></div>
         <div class="player-link">プレイヤーを確認: <a href="player.html" target="_blank">player.html を開く →</a></div>
@@ -108,6 +115,25 @@
             document.getElementById('custom_image_url').value = c.custom_widget?.image_url || '';
             document.getElementById('contact_title').value = c.contact?.title || '';
             document.getElementById('contact_number').value = c.contact?.number || '';
+
+            // アセット一覧と個別時間の読み込み
+            const resAssets = await fetch('/api/list-assets');
+            const assets = await resAssets.json();
+            const listDiv = document.getElementById('assets-list');
+            listDiv.innerHTML = '';
+            
+            const durations = c.file_durations || {};
+            assets.forEach(file => {
+                const group = document.createElement('div');
+                group.className = 'switch-group';
+                group.style.background = '#fff';
+                group.style.border = '1px solid var(--border)';
+                group.innerHTML = `
+                    <span style="font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">${file}</span>
+                    <input type="number" class="file-duration-input" data-file="${file}" value="${durations[file] || ''}" placeholder="10" style="width:80px; padding:6px;">
+                `;
+                listDiv.appendChild(group);
+            });
         } catch (e) { console.error("load error", e); }
     }
 
@@ -121,8 +147,13 @@
             weather: { lat: parseFloat(document.getElementById('weather_lat').value), lon: parseFloat(document.getElementById('weather_lon').value), visible: document.getElementById('weather_visible').checked },
             clock: { visible: document.getElementById('clock_visible').checked },
             custom_widget: { title: document.getElementById('custom_title').value, content: document.getElementById('custom_content').value, image_url: document.getElementById('custom_image_url').value, visible: document.getElementById('custom_visible').checked },
-            contact: { title: document.getElementById('contact_title').value, number: document.getElementById('contact_number').value, visible: document.getElementById('contact_visible').checked }
+            contact: { title: document.getElementById('contact_title').value, number: document.getElementById('contact_number').value, visible: document.getElementById('contact_visible').checked },
+            file_durations: {}
         };
+        document.querySelectorAll('.file-duration-input').forEach(input => {
+            const val = parseInt(input.value);
+            if (!isNaN(val)) payload.file_durations[input.dataset.file] = val;
+        });
         try {
             const r = await fetch('/api/save-config', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             if (r.ok) { msg.textContent = '✅ 保存されました！'; msg.style.color = '#10b981'; }

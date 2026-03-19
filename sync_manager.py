@@ -81,11 +81,9 @@ def update_playlist(remote_names):
     if not os.path.exists(ASSETS_DIR):
         os.makedirs(ASSETS_DIR)
         
-    excluded = ['company_logo.png', 'qr_code.svg', 'playlist.js', 'config.json']
     files = [f for f in os.listdir(ASSETS_DIR) 
              if os.path.isfile(os.path.join(ASSETS_DIR, f)) 
-             and not f.startswith('.') 
-             and f not in excluded]
+             and not f.startswith('.')]
     files.sort()
     
     playlist_content = f"const playlist = {json.dumps(files, indent=2, ensure_ascii=False)};"

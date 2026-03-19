@@ -9,6 +9,21 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    def do_GET(self):
+        if self.path == '/api/list-assets':
+            assets_dir = os.path.join(DIRECTORY, 'assets')
+            files = []
+            if os.path.exists(assets_dir):
+                files = [f for f in os.listdir(assets_dir) 
+                         if os.path.isfile(os.path.join(assets_dir, f)) 
+                         and not f.startswith('.')]
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(files).encode())
+        else:
+            return super().do_GET()
+
     def do_POST(self):
         if self.path == '/api/save-config':
             content_length = int(self.headers['Content-Length'])

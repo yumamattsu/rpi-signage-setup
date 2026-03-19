@@ -80,13 +80,15 @@
     </style>
 </head>
 <body>
-        <div class="header-left">
+    <header>
+        <div class="header-left" style="display:flex; align-items:center;">
             <span class="header-title" id="display-mansion-name" style="font-size: 28px; font-weight: 700;">Loading...</span>
             <span class="header-subtitle" style="font-size: 12px; font-weight: 500; letter-spacing: 0.25em; opacity: 0.85; margin-left: 14px; text-transform: uppercase;">RESIDENTIAL SIGNAGE</span>
         </div>
         <div class="header-right">
-            <img src="assets/company_logo.png" alt="Logo" style="height: 46px; width: auto; object-fit: contain; filter: brightness(0) invert(1);">
+            <img src="static/company_logo.png" alt="Logo" style="height: 23px; width: auto; object-fit: contain;">
         </div>
+    </header>
     <div id="content-area"></div>
     <aside>
         <div class="widget widget-time" id="widget-clock">
@@ -202,6 +204,8 @@
             if (currentIndex >= playlist.length) currentIndex = 0;
             const filename = playlist[currentIndex];
             const ext = filename.split('.').pop().toLowerCase();
+            const customDuration = config.file_durations ? config.file_durations[filename] : null;
+            
             let el;
             if (['mp4','webm'].includes(ext)) {
                 el = document.createElement('video');
@@ -213,11 +217,15 @@
                 el = document.createElement('iframe');
                 el.src = ASSETS_DIR + filename + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
                 el.className = 'slide active'; el.style.border = 'none';
-                timer = setTimeout(() => { currentIndex++; playNext(); }, 15000);
+                const d = customDuration ? customDuration * 1000 : 15000;
+                timer = setTimeout(() => { currentIndex++; playNext(); }, d);
             } else {
                 el = document.createElement('img');
                 el.src = ASSETS_DIR + filename; el.className = 'slide active';
-                el.onload = () => { timer = setTimeout(() => { currentIndex++; playNext(); }, 10000); };
+                el.onload = () => { 
+                    const d = customDuration ? customDuration * 1000 : 10000;
+                    timer = setTimeout(() => { currentIndex++; playNext(); }, d); 
+                };
                 el.onerror = () => { currentIndex++; playNext(); };
             }
             container.appendChild(el);
