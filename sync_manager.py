@@ -45,9 +45,9 @@ def sync():
         return
 
     try:
-        # フォルダ内のファイル一覧を取得
+        # フォルダ内のファイル一覧を取得 (フォルダ自体は除外)
         results = service.files().list(
-            q=f"'{folder_id}' in parents and trashed = false",
+            q=f"'{folder_id}' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'",
             fields="files(id, name, md5Checksum)"
         ).execute()
         items = results.get('files', [])
