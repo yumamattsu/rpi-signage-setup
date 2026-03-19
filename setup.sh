@@ -66,6 +66,12 @@ sudo systemctl enable sgn_sync
 sudo systemctl start sgn_server
 sudo systemctl start sgn_sync
 
+# 5. 夜間自動再起動の設定 (Cron)
+# 長期稼働によるメモリリークやフリーズを防ぐため、毎日午前4時に再起動する設定を追加します。
+echo "Setting up nightly reboot at 4:00 AM..."
+REBOOT_JOB="0 4 * * * /sbin/shutdown -r now"
+(sudo crontab -l 2>/dev/null | grep -v "/sbin/shutdown -r now"; echo "$REBOOT_JOB") | sudo crontab -
+
 echo "------------------------------------------------"
 echo "Setup Complete!"
 echo "Signage Admin is running at http://$(hostname -I | awk '{print $1}'):8000/admin.html"
