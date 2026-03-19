@@ -179,7 +179,7 @@ def generate_playlist():
     try:
         # Filter for valid image/video/pdf extensions
         valid_exts = ('.jpg', '.jpeg', '.png', '.gif', '.mp4', '.webm', '.pdf')
-        excluded_files = ["playlist.js", "config.json", "qr_code.svg", "company_logo.png", "company_logo.svg"]
+        excluded_files = ["playlist.js", "config.json", "qr_code.svg", "company_logo.png", "company_logo.png"]
         
         files = [f for f in os.listdir(ASSETS_DIR) 
                  if f.lower().endswith(valid_exts) and f not in excluded_files and not f.startswith(".")]
