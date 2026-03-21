@@ -121,65 +121,33 @@
     </aside>
     <script src="playlist.js"></script>
     <script>
-        // --- 1. 変数・定数の宣言 (冒頭に集約) ---
-        const ASSETS_DIR = "assets/";
-        const CONFIG_FILE = "config.json";
-        const container = document.getElementById('content-area');
-        
         let config = {};
-        let playlist = []; 
-        let currentIndex = 0;
-        let timer = null;
 
-        // --- 2. データ取得ロジック ---
         async function loadConfig() {
             try {
-                const res = await fetch(CONFIG_FILE + '?t=' + Date.now());
-                config = await res.json();
+                const r = await fetch('config.json');
+                config = await r.json();
                 applyConfig();
-            } catch (e) { console.error("Config load failed", e); }
-        }
-
-        async function loadPlaylist() {
-            try {
-                const res = await fetch('/api/list-assets?t=' + Date.now());
-                const newList = await res.json();
-                if (JSON.stringify(playlist) !== JSON.stringify(newList)) {
-                    playlist = newList;
-                    if (playlist.length > 0 && !container.querySelector('.slide.active')) {
-                        initPlayer();
-                    }
-                }
-            } catch (e) { console.error("Playlist API fetch failed", e); }
-        }
-
-        // --- 3. UI 反映ロジック ---
-        function applyConfig() {
-            if (config.mansion_name) {
-                document.getElementById('display-mansion-name').textContent = config.mansion_name;
+            } catch (e) {
+                console.error("Config load failed", e);
+                applyConfig();
             }
+        }
 
-            // カスタムウィジェット (お知らせ)
-            const custom = document.getElementById('widget-custom');
+        function applyConfig() {
+            document.getElementById('display-mansion-name').textContent = config.mansion_name || "RESIDENTIAL";
+            if (config.clock?.visible) document.getElementById('widget-clock').style.display = 'block';
+            if (config.weather?.visible) document.getElementById('widget-weather').style.display = 'block';
             if (config.custom_widget?.visible) {
-                custom.style.display = 'block';
+                document.getElementById('widget-custom').style.display = 'block';
                 document.getElementById('custom-title').textContent = config.custom_widget.title || 'お知らせ';
                 document.getElementById('custom-text').textContent = config.custom_widget.content || '';
-                const img = document.getElementById('custom-img');
                 if (config.custom_widget.image_url) {
+                    const img = document.getElementById('custom-img');
                     img.src = config.custom_widget.image_url;
                     img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
                 }
-            } else if (custom) {
-                custom.style.display = 'none';
             }
-
-            // 時刻
-            if (config.clock?.visible) document.getElementById('widget-clock').style.display = 'block';
-            
-            // 緊急連絡先
             if (config.contact?.visible) {
                 document.getElementById('widget-contact').style.display = 'block';
                 document.getElementById('contact-title').textContent = config.contact.title || '';
@@ -221,17 +189,18 @@
         }
         setInterval(fetchWeather, 1800000);
 
-        // --- 4. 再生ロジック ---
+        const ASSETS_DIR = "assets/";
+        const container = document.getElementById('content-area');
+        let currentIndex = 0, timer = null;
+
         function initPlayer() {
-            if (!playlist || playlist.length === 0) {
+            if (typeof playlist === 'undefined' || !playlist || playlist.length === 0) {
                 container.innerHTML = '<h1 style="color:white;text-align:center;margin-top:40%;">No Content</h1>';
                 return;
             }
-            if (!container.querySelector('.slide.active')) playNext();
+            playNext();
         }
-
         function playNext() {
-            if (!playlist || playlist.length === 0) return;
             container.innerHTML = '';
             clearTimeout(timer);
             if (currentIndex >= playlist.length) currentIndex = 0;
@@ -264,12 +233,9 @@
             container.appendChild(el);
         }
 
-        // --- 5. 実行開始 ---
         loadConfig();
-        loadPlaylist().then(() => initPlayer());
-
-        setInterval(loadConfig, 30000); // 30秒ごとに設定反映
-        setInterval(loadPlaylist, 60000); // 1分ごとに再生リスト反映
+        setInterval(loadConfig, 30000); // 30秒ごとに設定を自動反映
+        initPlayer();
     </script>
 </body>
 </html>
