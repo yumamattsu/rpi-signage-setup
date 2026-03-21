@@ -237,8 +237,12 @@
         let currentAssetsJSON = null;
         async function checkPlaylistUpdate() {
             try {
-                const res = await fetch('/api/list-assets?t=' + Date.now());
+                // APIエンドポイントにはクエリパラメータをつけず、ヘッダーでキャッシュ回避する
+                const res = await fetch('/api/list-assets', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Network response was not ok');
+                
                 const assets = await res.json();
+                assets.sort(); // 順番の違いによる誤検知を防ぐためソート
                 const newJSON = JSON.stringify(assets);
 
                 if (currentAssetsJSON === null) {
@@ -257,7 +261,7 @@
         
         loadConfig();
         initPlayer();
-        checkPlaylistUpdate(); // 初回の状態保存
+        checkPlaylistUpdate(); // 初回の状態を記録
     </script>
 </body>
 </html>
