@@ -16,7 +16,7 @@ echo "Setting up Python virtual environment..."
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-# pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
 # 3. サービスファイルの作成 (systemd)
 # 「電源を入れたら自動でプログラムを動かす」ための設定ファイルを作成します。

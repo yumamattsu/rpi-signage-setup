@@ -71,7 +71,12 @@ def sync():
                     while not done:
                         _, done = downloader.next_chunk()
         
-        # 削除されたファイルのクリーンアップ（任意ですが、ここではプレイリスト更新のみ）
+        # 削除されたファイルのクリーンアップ（Google Drive に無いものを消去）
+        for local_file in os.listdir(ASSETS_DIR):
+            if local_file not in remote_names and not local_file.startswith('.'):
+                print(f"Deleting removed file: {local_file}")
+                os.remove(os.path.join(ASSETS_DIR, local_file))
+
         update_playlist(remote_names)
 
     except Exception as e:
