@@ -189,18 +189,32 @@
         }
         setInterval(fetchWeather, 1800000);
 
+        async function loadPlaylist() {
+            try {
+                const res = await fetch('/api/list-assets?t=' + Date.now());
+                const newList = await res.json();
+                if (JSON.stringify(playlist) !== JSON.stringify(newList)) {
+                    playlist = newList;
+                    if (playlist.length > 0 && !container.querySelector('.slide.active')) {
+                        initPlayer();
+                    }
+                }
+            } catch (e) { console.error("Playlist load failed", e); }
+        }
+
         const ASSETS_DIR = "assets/";
         const container = document.getElementById('content-area');
-        let currentIndex = 0, timer = null;
+        let currentIndex = 0, timer = null, playlist = [];
 
         function initPlayer() {
-            if (typeof playlist === 'undefined' || !playlist || playlist.length === 0) {
+            if (!playlist || playlist.length === 0) {
                 container.innerHTML = '<h1 style="color:white;text-align:center;margin-top:40%;">No Content</h1>';
                 return;
             }
-            playNext();
+            if (!container.querySelector('.slide.active')) playNext();
         }
         function playNext() {
+            if (!playlist || playlist.length === 0) return;
             container.innerHTML = '';
             clearTimeout(timer);
             if (currentIndex >= playlist.length) currentIndex = 0;
@@ -234,8 +248,9 @@
         }
 
         loadConfig();
+        loadPlaylist().then(() => initPlayer());
         setInterval(loadConfig, 30000); // 30秒ごとに設定を自動反映
-        initPlayer();
+        setInterval(loadPlaylist, 60000); // 1分ごとにプレイリストを自動更新
     </script>
 </body>
 </html>
