@@ -233,9 +233,31 @@
             container.appendChild(el);
         }
 
-        loadConfig();
+        // --- 4. 自動更新（リロード）ロジック ---
+        let currentAssetsJSON = null;
+        async function checkPlaylistUpdate() {
+            try {
+                const res = await fetch('/api/list-assets?t=' + Date.now());
+                const assets = await res.json();
+                const newJSON = JSON.stringify(assets);
+
+                if (currentAssetsJSON === null) {
+                    currentAssetsJSON = newJSON; // 初回は状態を保存するだけ
+                } else if (currentAssetsJSON !== newJSON) {
+                    console.log("Playlist updated, reloading page...");
+                    location.reload(); // 変更があった場合のみページ全体をリロード
+                }
+            } catch (e) {
+                console.error("Failed to check playlist update", e);
+            }
+        }
+
         setInterval(loadConfig, 30000); // 30秒ごとに設定を自動反映
+        setInterval(checkPlaylistUpdate, 60000); // 1分ごとにプレイリストの変更を検知
+        
+        loadConfig();
         initPlayer();
+        checkPlaylistUpdate(); // 初回の状態保存
     </script>
 </body>
 </html>
