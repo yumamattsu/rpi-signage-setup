@@ -69,9 +69,15 @@ sudo systemctl start sgn_sync
 # 4.5 FullPageOS の起動画面設定
 # サーバーが立ち上がる前にブラウザが開いてエラーになるのを防ぐため、待機画面（boot.html）を初期画面にします。
 echo "Configuring FullPageOS boot URL..."
-if [ -f /boot/fullpageos.txt ]; then
+# Bookworm以降のOSでは /boot/firmware/ に設定ファイルがあります
+if [ -f /boot/firmware/fullpageos.txt ]; then
+    echo "file:///home/pi/synage/boot.html" | sudo tee /boot/firmware/fullpageos.txt > /dev/null
+elif [ -f /boot/fullpageos.txt ]; then
     echo "file:///home/pi/synage/boot.html" | sudo tee /boot/fullpageos.txt > /dev/null
 fi
+
+# Nginxとの競合による起動時無限フリーズ（403エラー起因）を完全に防止します
+echo "disabled" | sudo tee /boot/firmware/check_for_httpd > /dev/null 2>&1 || true
 
 
 # 5. 夜間自動再起動の設定 (Cron)
