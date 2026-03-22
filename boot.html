@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Starting Signage...</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        // サーバーが立ち上がるまで2秒おきにチェックし続ける
+        function checkServer() {
+            // timeoutを設けて、応答がなければ即catchに行くようにする
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+            fetch('http://localhost:8000/player.html', { 
+                mode: 'no-cors', 
+                cache: 'no-store',
+                signal: controller.signal
+            })
+            .then(() => {
+                clearTimeout(timeoutId);
+                // サーバーが応答したらプレイヤーへリダイレクト
+                window.location.replace('http://localhost:8000/player.html');
+            })
+            .catch(() => {
+                // 応答がなければ2秒後に再挑戦
+                clearTimeout(timeoutId);
+                setTimeout(checkServer, 2000);
+            });
+        }
+        
+        // 開始後すぐにチェック開始
+        window.onload = () => {
+            setTimeout(checkServer, 1000); // 念のため1秒待ってから開始
+        };
+    </script>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <p style="letter-spacing: 2px;">SYSTEM BOOTING...</p>
+        <p style="font-size: 12px; color: #888;">Waiting for local server to start</p>
+    </div>
+</body>
+</html>

@@ -66,6 +66,14 @@ sudo systemctl enable sgn_sync
 sudo systemctl start sgn_server
 sudo systemctl start sgn_sync
 
+# 4.5 FullPageOS の起動画面設定
+# サーバーが立ち上がる前にブラウザが開いてエラーになるのを防ぐため、待機画面（boot.html）を初期画面にします。
+echo "Configuring FullPageOS boot URL..."
+if [ -f /boot/fullpageos.txt ]; then
+    echo "file:///home/pi/synage/boot.html" | sudo tee /boot/fullpageos.txt > /dev/null
+fi
+
+
 # 5. 夜間自動再起動の設定 (Cron)
 # 長期稼働によるメモリリークやフリーズを防ぐため、毎日午前4時に再起動する設定を追加します。
 echo "Setting up nightly reboot at 4:00 AM..."
