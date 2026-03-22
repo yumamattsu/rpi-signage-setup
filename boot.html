@@ -46,8 +46,8 @@
             })
             .then(() => {
                 clearTimeout(timeoutId);
-                // サーバーが応答したらプレイヤーへリダイレクト
-                window.location.replace('http://localhost:8000/player.html');
+                // サーバーが応答したら、キャッシュを確実に破棄するため毎回新しいクエリパラメータを付与してプレイヤーへリダイレクト
+                window.location.replace('http://localhost:8000/player.html?v=' + Date.now());
             })
             .catch(() => {
                 // 応答がなければ2秒後に再挑戦
