@@ -201,6 +201,7 @@
             playNext();
         }
         function playNext() {
+            if (!playlist || playlist.length === 0) return;
             container.innerHTML = '';
             clearTimeout(timer);
             if (currentIndex >= playlist.length) currentIndex = 0;
@@ -213,22 +214,30 @@
                 el = document.createElement('video');
                 el.src = ASSETS_DIR + filename;
                 el.muted = true; el.autoplay = true; el.className = 'slide active';
-                el.onended = () => { currentIndex++; playNext(); };
-                el.onerror = () => { currentIndex++; playNext(); };
+                if (playlist.length === 1) {
+                    el.loop = true; // 1つの時はちらつき防止のため動画自身にループさせる
+                } else {
+                    el.onended = () => { currentIndex++; playNext(); };
+                }
+                el.onerror = () => { if (playlist.length > 1) { currentIndex++; playNext(); } };
             } else if (ext === 'pdf') {
                 el = document.createElement('iframe');
                 el.src = ASSETS_DIR + filename + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
                 el.className = 'slide active'; el.style.border = 'none';
-                const d = customDuration ? customDuration * 1000 : 15000;
-                timer = setTimeout(() => { currentIndex++; playNext(); }, d);
+                if (playlist.length > 1) {
+                    const d = customDuration ? customDuration * 1000 : 15000;
+                    timer = setTimeout(() => { currentIndex++; playNext(); }, d);
+                }
             } else {
                 el = document.createElement('img');
                 el.src = ASSETS_DIR + filename; el.className = 'slide active';
                 el.onload = () => { 
-                    const d = customDuration ? customDuration * 1000 : 10000;
-                    timer = setTimeout(() => { currentIndex++; playNext(); }, d); 
+                    if (playlist.length > 1) {
+                        const d = customDuration ? customDuration * 1000 : 10000;
+                        timer = setTimeout(() => { currentIndex++; playNext(); }, d); 
+                    }
                 };
-                el.onerror = () => { currentIndex++; playNext(); };
+                el.onerror = () => { if (playlist.length > 1) { currentIndex++; playNext(); } };
             }
             container.appendChild(el);
         }
