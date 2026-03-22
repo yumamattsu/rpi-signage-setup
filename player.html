@@ -125,7 +125,7 @@
 
         async function loadConfig() {
             try {
-                const r = await fetch('config.json');
+                const r = await fetch('config.json', { cache: 'no-store' });
                 config = await r.json();
                 applyConfig();
             } catch (e) {
@@ -136,22 +136,33 @@
 
         function applyConfig() {
             document.getElementById('display-mansion-name').textContent = config.mansion_name || "RESIDENTIAL";
-            if (config.clock?.visible) document.getElementById('widget-clock').style.display = 'block';
-            if (config.weather?.visible) document.getElementById('widget-weather').style.display = 'block';
+            
+            document.getElementById('widget-clock').style.display = config.clock?.visible ? 'block' : 'none';
+            document.getElementById('widget-weather').style.display = config.weather?.visible ? 'block' : 'none';
+            
+            const customWidget = document.getElementById('widget-custom');
             if (config.custom_widget?.visible) {
-                document.getElementById('widget-custom').style.display = 'block';
+                customWidget.style.display = 'block';
                 document.getElementById('custom-title').textContent = config.custom_widget.title || 'お知らせ';
                 document.getElementById('custom-text').textContent = config.custom_widget.content || '';
+                const img = document.getElementById('custom-img');
                 if (config.custom_widget.image_url) {
-                    const img = document.getElementById('custom-img');
                     img.src = config.custom_widget.image_url;
                     img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
                 }
+            } else {
+                customWidget.style.display = 'none';
             }
+            
+            const contactWidget = document.getElementById('widget-contact');
             if (config.contact?.visible) {
-                document.getElementById('widget-contact').style.display = 'block';
+                contactWidget.style.display = 'block';
                 document.getElementById('contact-title').textContent = config.contact.title || '';
                 document.getElementById('contact-number').textContent = config.contact.number || '';
+            } else {
+                contactWidget.style.display = 'none';
             }
             fetchWeather();
         }
